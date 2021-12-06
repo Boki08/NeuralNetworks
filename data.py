@@ -53,8 +53,6 @@ class Data:
         self.x_train_scaled = []
         self.x_test_scaled = []
 
-        self.scaler = MinMaxScaler(feature_range=(0, 1))
-
     def split_sequences(self, sequences_x, sequences_y, n_steps):
         x, y = list(), list()
         for i in range(len(sequences_x)):
@@ -182,6 +180,8 @@ class Data:
 
         print(self.x_train.shape, self.y_train.shape)
 
+        print("\tData set to regular")
+
     def split_data(self, type_of_split):
         self.type_of_split = type_of_split
         if type_of_split == "Testing":
@@ -209,6 +209,8 @@ class Data:
             self.n_features = self.x_train.shape[2]
 
             print(self.x_train.shape, self.y_train.shape)
+
+            print("\tData set to testing")
         else:
             self.x_train = self.x_train_scaled.copy()
             self.x_test = self.x_test_scaled.copy()
@@ -220,3 +222,5 @@ class Data:
             self.n_features = self.x_train.shape[2]
 
             print(self.x_train.shape, self.y_train.shape)
+
+            print("\tData set to regular")

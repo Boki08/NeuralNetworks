@@ -28,10 +28,10 @@ if __name__ == '__main__':
     test2 = pd.read_csv(testFile, sep=';')
     test2Copy = test2
 
-    menu = {'1': "Import Data", '2': "Create Model", '3': "Load Model", '4': "Simulate", '5': "Exit"}
-    modelMenu = {'1': "Classic LSTM model", '2': "Stacked LSTM model", '3': "Bidirectional LSTM model", '4': "GRU model",
-                 '5': "Exit"}
-    dataMenu = {'1': "Normal", '2': "Test"}
+    menu = {'1.': "Import Data", '2.': "Create Model", '3.': "Load Model", '4.': "Simulate", '5.': "Exit"}
+    modelMenu = {'1.': "Classic LSTM model", '2.': "Stacked LSTM model", '3.': "Bidirectional LSTM model", '4.': "GRU model",
+                 '5.': "Exit"}
+    dataMenu = {'1.': "Regular", '2.': "Testing"}
     while True:
         options = menu.keys()
         for entry in options:
@@ -39,6 +39,8 @@ if __name__ == '__main__':
 
         selection = input("Please Select:")
         if selection == '1':
+            print('--------------------------------------------------------')
+            print("Import Data")
             while True:
                 options = dataMenu.keys()
                 for entry in options:
@@ -54,6 +56,8 @@ if __name__ == '__main__':
                 else:
                     print("Unknown Option Selected!")
         elif selection == '2':
+            print('--------------------------------------------------------')
+            print("Create Model")
             while True:
                 options = modelMenu.keys()
                 for entry in options:
@@ -77,6 +81,8 @@ if __name__ == '__main__':
                 else:
                     print("Unknown Option Selected!")
         elif selection == '3':
+            print('--------------------------------------------------------')
+            print("Load Model")
             while True:
                 options = modelMenu.keys()
                 for entry in options:
@@ -100,6 +106,8 @@ if __name__ == '__main__':
                 else:
                     print("Unknown Option Selected!")
         elif selection == '4':
+            print('--------------------------------------------------------')
+            print("Simulate")
             if model.kerasModel.built:
                 model.simulate(data)
             else:

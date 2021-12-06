@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from tensorflow.keras import initializers
 from keras_self_attention import SeqSelfAttention
-
+from sklearn.metrics import confusion_matrix
 
 class Model:
     def __init__(self):
@@ -52,6 +52,8 @@ class Model:
         self.model_name = "ClassicLSTMModel"
         self.models[self.model_name] = self.kerasModel
         self.kerasModel.save(self.model_name)
+
+        print("\tCreated {:s}".format(self.model_name))
         ########################################################
 
     def createStackedLSTMModel(self, x, y):
@@ -82,6 +84,8 @@ class Model:
         self.model_name = "StackedLSTMModel"
         self.models[self.model_name] = self.kerasModel
         self.kerasModel.save(self.model_name)
+
+        print("\tCreated {:s}".format(self.model_name))
         ########################################################
 
     def createBidirectionalLSTMModel(self, x, y):
@@ -102,6 +106,8 @@ class Model:
         self.model_name = "BidirectionalLSTMModel"
         self.models[self.model_name] = self.kerasModel
         self.kerasModel.save(self.model_name)
+
+        print("\tCreated {:s}".format(self.model_name))
         ########################################################
 
     def createGRUModel(self, x, y):
@@ -126,6 +132,8 @@ class Model:
         self.model_name = "GRUModel"
         self.models[self.model_name] = self.kerasModel
         self.kerasModel.save(self.model_name)
+
+        print("\tCreated {:s}".format(self.model_name))
         ########################################################
 
     def loadClassicLSTMModel(self):
@@ -137,6 +145,8 @@ class Model:
                 self.kerasModel = keras.models.load_model('ClassicLSTMModel')
                 self.model_name = "ClassicLSTMModel"
                 self.models[self.model_name] = self.kerasModel
+
+                print("\tLoaded {:s}".format(self.model_name))
             except OSError:
                 print("Classic Model does not exist")
             except BaseException as err:
@@ -155,6 +165,8 @@ class Model:
                 self.kerasModel = keras.models.load_model('StackedLSTMModel')
                 self.model_name = "StackedLSTMModel"
                 self.models[self.model_name] = self.kerasModel
+
+                print("\tLoaded {:s}".format(self.model_name))
             except OSError:
                 print("Stacked Model does not exist")
             except BaseException as err:
@@ -173,6 +185,8 @@ class Model:
                 self.kerasModel = keras.models.load_model('BidirectionalLSTMModel')
                 self.model_name = "BidirectionalLSTMModel"
                 self.models[self.model_name] = self.kerasModel
+
+                print("\tLoaded {:s}".format(self.model_name))
             except OSError:
                 print("Bidirectional Model does not exist")
             except BaseException as err:
@@ -191,6 +205,8 @@ class Model:
                 self.kerasModel = keras.models.load_model('GRUModel')
                 self.model_name = "GRUModel"
                 self.models[self.model_name] = self.kerasModel
+
+                print("\tLoaded {:s}".format(self.model_name))
             except OSError:
                 print("GRU Model does not exist")
             except BaseException as err:
@@ -208,7 +224,7 @@ class Model:
         x_pred = x_pred.reshape(x_pred.shape[0], x_pred.shape[1])
 
         preds = imported_data.test_copy.copy()
-        preds['Predictions'] = x_pred[:, 0]
+        preds['Predictions'] = x_pred
 
         scored = pd.DataFrame(index=preds.index)
         scored['Predictions'] = x_pred
@@ -294,8 +310,23 @@ class Model:
             sensitivity = true_attack / (false_normal + true_attack)
             precision = true_attack / (true_attack + false_attack)
             f1_score = 2 * (precision * sensitivity) / (precision + sensitivity)
+            print('*************** Evaluation on Test Data ***************')
             print("All: {:d}, correct: {:d} ({:.4f}%), incorrect: {:d} ({:.4f}%)\nTesting Accuracy: {:.2f}\nSensitivity(Recall): {:.2f}\nPrecision: {:.2f}\nF1-Score: {:.2f}".format
                 ((correct + incorrect), correct, correct_percent, incorrect, (100 - correct_percent), accuracy,
                  sensitivity, precision, f1_score))
+            print('--------------------------------------------------------')
+            print("")
+
+            with np.nditer(x_pred, op_flags=['readwrite']) as it:
+                for val in it:
+                    if val != 0 and val != 1:
+                        if val < 0.5:
+                            val[...] = 0
+                        else:
+                            val[...] = 1
+            print('*************** Confusion matrix ***************')
+            print(confusion_matrix(imported_data.y_test, x_pred))
+            print('--------------------------------------------------------')
+            print("")
             
         preds.to_csv("Predictions{:s}.csv".format(self.model_name))
