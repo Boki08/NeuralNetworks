@@ -24,6 +24,4 @@ Chatterjee, C. C. (2019, December 17). Implementation of RNN, LSTM, and GRU - To
 
 Sharma, V. (2019, June 14). Data Visualization for Deep Learning Model Using Matplotlib. Pluralsight. https://www.pluralsight.com/guides/data-visualization-deep-learning-model-using-matplotlib
 
-Aliyev, V. (2020, October 7). Gradient Boosting Classification explained through Python. Medium. https://towardsdatascience.com/gradient-boosting-classification-explained-through-python-60cc980eeb3d
-
 Team, K. (n.d.). Keras documentation: LSTM layer. Keras. https://keras.io/api/layers/recurrent_layers/lstm/
