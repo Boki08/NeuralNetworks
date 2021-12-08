@@ -5,7 +5,8 @@ import pandas as pd
 import numpy as np
 from tensorflow.keras import initializers
 from keras_self_attention import SeqSelfAttention
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix
+
 
 class Model:
     def __init__(self):
@@ -13,29 +14,7 @@ class Model:
         self.model_name = "model"
         self.models = {}
 
-    def train_val_loss(self, history):
-        loss_train = history.history['loss']
-        loss_val = history.history['val_loss']
-        plt.plot(loss_train, 'y', label='Training loss')
-        plt.plot(loss_val, 'r', label='Validation loss')
-        plt.title('Training and Validation loss')
-        plt.xlabel('Epochs')
-        plt.ylabel('Loss')
-        plt.legend()
-        plt.show()
-
-    def train_val_accuracy(self, history):
-        loss_train = history.history['accuracy']
-        loss_val = history.history['val_accuracy']
-        plt.plot(loss_train, 'g', label='Training accuracy')
-        plt.plot(loss_val, 'b', label='Validation accuracy')
-        plt.title('Training and Validation accuracy')
-        plt.xlabel('Epochs')
-        plt.ylabel('Accuracy')
-        plt.legend()
-        plt.show()
-
-    def createClassicLSTMModel(self, x, y):
+    def createClassicLSTMModel(self, data):
         ######################################################## classic
         self.kerasModel = keras.models.Sequential()
         lstm_out = 196
@@ -43,20 +22,23 @@ class Model:
         self.kerasModel.add(keras.layers.Dense(1, activation='sigmoid'))
         self.kerasModel.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-        history = self.kerasModel.fit(x, y, batch_size=128, epochs=25, validation_split=0.1, verbose=1)
+        history = self.kerasModel.fit(data.x_train, data.y_train, batch_size=128, epochs=20, validation_split=0.1, verbose=1)
 
         print(self.kerasModel.summary())
-        self.train_val_loss(history)
-        self.train_val_accuracy(history)
+        train_val_loss(history)
+        train_val_accuracy(history)
 
         self.model_name = "ClassicLSTMModel"
         self.models[self.model_name] = self.kerasModel
+        if data.type_of_split == "Training":
+            self.evaluation(data)
+
         self.kerasModel.save(self.model_name)
 
-        print("\tCreated {:s}".format(self.model_name))
+        print("\tCreated {:s}\n".format(self.model_name))
         ########################################################
 
-    def createStackedLSTMModel(self, x, y):
+    def createStackedLSTMModel(self, data):
         ######################################################## stacked
         self.kerasModel = keras.models.Sequential()
         lstm_out = 196
@@ -75,20 +57,23 @@ class Model:
             keras.layers.Dense(1, activation='sigmoid'))
         self.kerasModel.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
-        history = self.kerasModel.fit(x, y, epochs=25, batch_size=128, validation_split=0.1, verbose=1)
+        history = self.kerasModel.fit(data.x_train, data.y_train, epochs=25, batch_size=128, validation_split=0.1, verbose=1)
 
         print(self.kerasModel.summary())
-        self.train_val_loss(history)
-        self.train_val_accuracy(history)
+        train_val_loss(history)
+        train_val_accuracy(history)
 
         self.model_name = "StackedLSTMModel"
         self.models[self.model_name] = self.kerasModel
+        if data.type_of_split == "Training":
+            self.evaluation(data)
+
         self.kerasModel.save(self.model_name)
 
-        print("\tCreated {:s}".format(self.model_name))
+        print("\tCreated {:s}\n".format(self.model_name))
         ########################################################
 
-    def createBidirectionalLSTMModel(self, x, y):
+    def createBidirectionalLSTMModel(self, data):
         ######################################################## Bidirectional
         self.kerasModel = keras.models.Sequential()
         lstm_out = 64
@@ -97,20 +82,23 @@ class Model:
         self.kerasModel.add(keras.layers.Dense(1, activation='sigmoid'))
         self.kerasModel.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-        history = self.kerasModel.fit(x, y, epochs=50, batch_size=128, validation_split=0.1, verbose=1)
+        history = self.kerasModel.fit(data.x_train, data.y_train, epochs=20, batch_size=128, validation_split=0.1, verbose=1)
 
         print(self.kerasModel.summary())
-        self.train_val_loss(history)
-        self.train_val_accuracy(history)
+        train_val_loss(history)
+        train_val_accuracy(history)
 
         self.model_name = "BidirectionalLSTMModel"
         self.models[self.model_name] = self.kerasModel
+        if data.type_of_split == "Training":
+            self.evaluation(data)
+
         self.kerasModel.save(self.model_name)
 
-        print("\tCreated {:s}".format(self.model_name))
+        print("\tCreated {:s}\n".format(self.model_name))
         ########################################################
 
-    def createGRUModel(self, x, y):
+    def createGRUModel(self, data):
         ######################################################## GRU(Gated Recurrent Unit)
         self.kerasModel = keras.models.Sequential()
         gru_out = 25
@@ -123,17 +111,20 @@ class Model:
         self.kerasModel.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 
-        history = self.kerasModel.fit(x, y, epochs=20, batch_size=25, validation_split=0.1, verbose=1)
+        history = self.kerasModel.fit(data.x_train, data.y_train, epochs=20, batch_size=25, validation_split=0.1, verbose=1)
 
         print(self.kerasModel.summary())
-        self.train_val_loss(history)
-        self.train_val_accuracy(history)
+        train_val_loss(history)
+        train_val_accuracy(history)
 
         self.model_name = "GRUModel"
         self.models[self.model_name] = self.kerasModel
+        if data.type_of_split == "Training":
+            self.evaluation(data)
+
         self.kerasModel.save(self.model_name)
 
-        print("\tCreated {:s}".format(self.model_name))
+        print("\tCreated {:s}\n".format(self.model_name))
         ########################################################
 
     def loadClassicLSTMModel(self):
@@ -146,14 +137,16 @@ class Model:
                 self.model_name = "ClassicLSTMModel"
                 self.models[self.model_name] = self.kerasModel
 
-                print("\tLoaded {:s}".format(self.model_name))
+                print("\tLoaded {:s}\n".format(self.model_name))
             except OSError:
+                self.model_name = temp_name
                 print("Classic Model does not exist")
             except BaseException as err:
+                self.model_name = temp_name
                 print(f"Unexpected {err=}, {type(err)=}")
                 raise
         else:
-            self.model_name = temp_name
+            print("\tLoaded {:s}\n".format(self.model_name))
         ########################################################
 
     def loadStackedLSTMModel(self):
@@ -166,14 +159,16 @@ class Model:
                 self.model_name = "StackedLSTMModel"
                 self.models[self.model_name] = self.kerasModel
 
-                print("\tLoaded {:s}".format(self.model_name))
+                print("\tLoaded {:s}\n".format(self.model_name))
             except OSError:
+                self.model_name = temp_name
                 print("Stacked Model does not exist")
             except BaseException as err:
+                self.model_name = temp_name
                 print(f"Unexpected {err=}, {type(err)=}")
                 raise
         else:
-            self.model_name = temp_name
+            print("\tLoaded {:s}\n".format(self.model_name))
         ########################################################
 
     def loadBidirectionalLSTMModel(self):
@@ -186,14 +181,16 @@ class Model:
                 self.model_name = "BidirectionalLSTMModel"
                 self.models[self.model_name] = self.kerasModel
 
-                print("\tLoaded {:s}".format(self.model_name))
+                print("\tLoaded {:s}\n".format(self.model_name))
             except OSError:
+                self.model_name = temp_name
                 print("Bidirectional Model does not exist")
             except BaseException as err:
+                self.model_name = temp_name
                 print(f"Unexpected {err=}, {type(err)=}")
                 raise
         else:
-            self.model_name = temp_name
+            print("\tLoaded {:s}\n".format(self.model_name))
         ########################################################
 
     def loadGRUModel(self):
@@ -206,17 +203,22 @@ class Model:
                 self.model_name = "GRUModel"
                 self.models[self.model_name] = self.kerasModel
 
-                print("\tLoaded {:s}".format(self.model_name))
+                print("\tLoaded {:s}\n".format(self.model_name))
             except OSError:
+                self.model_name = temp_name
                 print("GRU Model does not exist")
             except BaseException as err:
+                self.model_name = temp_name
                 print(f"Unexpected {err=}, {type(err)=}")
                 raise
         else:
-            self.model_name = temp_name
+            print("\tLoaded {:s}\n".format(self.model_name))
         ########################################################
 
     def simulate(self, imported_data):
+
+        print("\tUsing {:s}\n".format(self.model_name))
+
         x_input = np.array(imported_data.x_test)
         x_input = x_input.reshape((x_input.shape[0], imported_data.n_steps, imported_data.n_features))
 
@@ -224,18 +226,16 @@ class Model:
         x_pred = x_pred.reshape(x_pred.shape[0], x_pred.shape[1])
 
         preds = imported_data.test_copy.copy()
-        preds['Predictions'] = x_pred
+        preds = preds.assign(Predictions=x_pred, PredictionValues=x_pred)
 
         scored = pd.DataFrame(index=preds.index)
-        scored['Predictions'] = x_pred
+        scored = scored.assign(Predictions=x_pred, Threshold=0.5)
+        scored.sort_index(inplace=True)
 
-        scored['Threshold'] = 0.5
-        if imported_data.type_of_split == "Testing":
+        if imported_data.type_of_split == "Training":
             scored['Actual'] = imported_data.y_test
-            scored.sort_index(inplace=True)
             scored.plot(figsize=(16, 9), style=['b-', 'r-', 'g--'])
         else:
-            scored.sort_index(inplace=True)
             scored.plot(figsize=(16, 9), style=['b-', 'r-'])
         plt.ylim(-1, 1.5)
         plt.show()
@@ -249,6 +249,7 @@ class Model:
         false_normal = 0
 
         preds.reset_index(inplace=True)
+
         preds["Predictions"] = preds["Predictions"].astype(str)
 
         if imported_data.type_of_split == "Regular":
@@ -272,6 +273,7 @@ class Model:
             print("All: {:d}, normal: {:d} ({:.4f}%), attack: {:d} ({:.4f}%)".format(
                 (normal + attack), normal, normal_percent, attack,
                 (100 - normal_percent)))
+            print('--------------------------------------------------------\n')
 
         else:
             if imported_data.unique_values_normal_attack[0] == "Normal":
@@ -314,8 +316,7 @@ class Model:
             print("All: {:d}, correct: {:d} ({:.4f}%), incorrect: {:d} ({:.4f}%)\nTesting Accuracy: {:.2f}\nSensitivity(Recall): {:.2f}\nPrecision: {:.2f}\nF1-Score: {:.2f}".format
                 ((correct + incorrect), correct, correct_percent, incorrect, (100 - correct_percent), accuracy,
                  sensitivity, precision, f1_score))
-            print('--------------------------------------------------------')
-            print("")
+            print('--------------------------------------------------------\n')
 
             with np.nditer(x_pred, op_flags=['readwrite']) as it:
                 for val in it:
@@ -326,7 +327,69 @@ class Model:
                             val[...] = 1
             print('*************** Confusion matrix ***************')
             print(confusion_matrix(imported_data.y_test, x_pred))
-            print('--------------------------------------------------------')
-            print("")
-            
-        preds.to_csv("Predictions{:s}.csv".format(self.model_name))
+            print('--------------------------------------------------------\n')
+
+        print('Writing to a file...')
+        preds.to_csv("Predictions{:s}_{:s}.csv".format(self.model_name, imported_data.type_of_split), float_format="%.8f")
+        print('Done\n')
+        
+    def evaluation(self, data):
+        x_input = np.array(data.x_train)
+        x_input = x_input.reshape((x_input.shape[0], data.n_steps, data.n_features))
+        pred_labels_tr = self.models[self.model_name].predict(x_input)
+        pred_labels_tr = pred_labels_tr.reshape(pred_labels_tr.shape[0], pred_labels_tr.shape[1])
+
+        with np.nditer(pred_labels_tr, op_flags=['readwrite']) as it:
+            for val in it:
+                if val != 0 and val != 1:
+                    if val < 0.5:
+                        val[...] = 0
+                    else:
+                        val[...] = 1
+
+        x_input = np.array(data.x_test)
+        x_input = x_input.reshape((x_input.shape[0], data.n_steps, data.n_features))
+        pred_labels_te = self.models[self.model_name].predict(x_input)
+        pred_labels_te = pred_labels_te.reshape(pred_labels_te.shape[0], pred_labels_te.shape[1])
+
+        with np.nditer(pred_labels_te, op_flags=['readwrite']) as it:
+            for val in it:
+                if val != 0 and val != 1:
+                    if val < 0.5:
+                        val[...] = 0
+                    else:
+                        val[...] = 1
+
+        print('*************** Evaluation on Test Data ***************')
+        print(classification_report(data.y_test, pred_labels_te))
+        print('--------------------------------------------------------\n')
+
+        print('*************** Evaluation on Training Data ***************')
+        print(classification_report(data.y_train, pred_labels_tr))
+        print('--------------------------------------------------------\n')
+
+        print('*************** Confusion matrix ***************')
+        print(confusion_matrix(data.y_test, pred_labels_te))
+        print('--------------------------------------------------------\n')
+
+def train_val_loss(history):
+    loss_train = history.history['loss']
+    loss_val = history.history['val_loss']
+    plt.plot(loss_train, 'y', label='Training loss')
+    plt.plot(loss_val, 'r', label='Validation loss')
+    plt.title('Training and Validation loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.show()
+
+def train_val_accuracy(history):
+    loss_train = history.history['accuracy']
+    loss_val = history.history['val_accuracy']
+    plt.plot(loss_train, 'g', label='Training accuracy')
+    plt.plot(loss_val, 'b', label='Validation accuracy')
+    plt.title('Training and Validation accuracy')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    plt.legend()
+    plt.show()

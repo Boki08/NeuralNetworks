@@ -1,17 +1,16 @@
 import pandas as pd
 import numpy as np
-import seaborn as sns
 import sys
 import model
 import data
 
-sns.set(color_codes=True)
 
 if __name__ == '__main__':
     # fix random seed for reproducibility
     np.random.seed(7)
 
     trainFile = 'FullTrain.csv'
+    #testFile = '20191206MixTest.csv'
     testFile = 'test.csv'
 
     model = model.Model()
@@ -31,8 +30,10 @@ if __name__ == '__main__':
     menu = {'1.': "Import Data", '2.': "Create Model", '3.': "Load Model", '4.': "Simulate", '5.': "Exit"}
     modelMenu = {'1.': "Classic LSTM model", '2.': "Stacked LSTM model", '3.': "Bidirectional LSTM model", '4.': "GRU model",
                  '5.': "Exit"}
-    dataMenu = {'1.': "Regular", '2.': "Testing"}
+    dataMenu = {'1.': "Regular", '2.': "Training", '3.': "Exit"}
     while True:
+        print('************************************************')
+        print('Menu:')
         options = menu.keys()
         for entry in options:
             print(entry, menu[entry])
@@ -51,7 +52,9 @@ if __name__ == '__main__':
                     data.split_data("Regular")
                     break
                 elif selection == '2':
-                    data.split_data("Testing")
+                    data.split_data("Training")
+                    break
+                elif selection == '3':
                     break
                 else:
                     print("Unknown Option Selected!")
@@ -65,16 +68,16 @@ if __name__ == '__main__':
 
                 selection = input("Please Select:")
                 if selection == '1':
-                    model.createClassicLSTMModel(data.x_train, data.y_train)
+                    model.createClassicLSTMModel(data)
                     break
                 elif selection == '2':
-                    model.createStackedLSTMModel(data.x_train, data.y_train)
+                    model.createStackedLSTMModel(data)
                     break
                 elif selection == '3':
-                    model.createBidirectionalLSTMModel(data.x_train, data.y_train)
+                    model.createBidirectionalLSTMModel(data)
                     break
                 elif selection == '4':
-                    model.createGRUModel(data.x_train, data.y_train)
+                    model.createGRUModel(data)
                     break
                 elif selection == '5':
                     break
@@ -111,7 +114,7 @@ if __name__ == '__main__':
             if model.kerasModel.built:
                 model.simulate(data)
             else:
-                print("Model is not loaded!")
+                print("\tModel is not loaded!")
         elif selection == '5':
             break
         else:
