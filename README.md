@@ -25,3 +25,5 @@ Chatterjee, C. C. (2019, December 17). Implementation of RNN, LSTM, and GRU - To
 Sharma, V. (2019, June 14). Data Visualization for Deep Learning Model Using Matplotlib. Pluralsight. https://www.pluralsight.com/guides/data-visualization-deep-learning-model-using-matplotlib
 
 Team, K. (n.d.). Keras documentation: LSTM layer. Keras. https://keras.io/api/layers/recurrent_layers/lstm/
+
+Aruchamy, V. (2021, December 15). How To Plot Confusion Matrix In Python And Why You Need To? Stack Vidhya. https://www.stackvidhya.com/plot-confusion-matrix-in-python-and-why/
