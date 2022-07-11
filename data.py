@@ -36,7 +36,6 @@ class Data:
 
         self.test_data_copy = self.test_data.copy()
         self.test_copy = self.test_data.copy()
-        self.val_copy = 0
 
         self.x_train = []
         self.x_test = []
@@ -125,13 +124,13 @@ class Data:
 
             self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(
                 self.train_data.iloc[:, :-1], self.train_data.iloc[:, -1],
-                test_size=0.4, random_state=0)
+                test_size=0.4, random_state=None)
 
             self.x_test, self.x_val, self.y_test, self.y_val = train_test_split(self.x_test,
                                                                                 self.y_test,
-                                                                                test_size=0.5, random_state=0)
+                                                                                test_size=0.5, random_state=None)
 
-            self.val_copy = self.train_data_copy.loc[self.x_val.index.tolist()]
+            self.test_copy = self.train_data_copy.loc[self.x_test.index.tolist()]
 
             self.x_train = pd.DataFrame(self.x_train).reset_index(drop=True)
             self.x_train = self.x_train.to_numpy()

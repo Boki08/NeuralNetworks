@@ -283,13 +283,13 @@ class Model:
 
         print("\tUsing {:s}\n".format(self.model_name))
 
-        x_input = np.array(imported_data.x_val)
+        x_input = np.array(imported_data.x_test)
         x_input = x_input.reshape((x_input.shape[0], imported_data.n_steps, imported_data.n_features))
 
         x_pred = self.models[self.model_name].predict(x_input)
         x_pred = x_pred.reshape(x_pred.shape[0], x_pred.shape[1])
 
-        preds = imported_data.val_copy.copy()
+        preds = imported_data.test_copy.copy()
         preds = preds.assign(Predictions=x_pred, PredictionValues=x_pred)
 
         with np.nditer(x_pred, op_flags=['readwrite']) as it:
@@ -300,11 +300,11 @@ class Model:
                     else:
                         val[...] = 1
 
-        cf_matrix = confusion_matrix(imported_data.y_val, x_pred)
+        cf_matrix = confusion_matrix(imported_data.y_test, x_pred)
         print('*************** Confusion matrix ***************')
         print(cf_matrix)
         print('-------------------------------------------------------------\n')
-        print_confusion_matrix(cf_matrix, '{:s} (Validation Data)'.format(self.model_name))
+        print_confusion_matrix(cf_matrix, '{:s} (Test Data)'.format(self.model_name))
 
         true_attack = cf_matrix[0, 0]
         true_normal = cf_matrix[1, 1]
@@ -331,7 +331,7 @@ class Model:
         f1_score = 2 * (precision * sensitivity) / (precision + sensitivity)
 
         print('* {:s} *'.format(self.model_name).center(55))
-        print('**************** Evaluation on Validation Data ****************')
+        print('**************** Evaluation on Test Data ****************')
         print("All: {:d}, correct: {:d} ({:.4f}%), incorrect: {:d} ({:.4f}%)\nTesting Accuracy: {:.4f}\nSensitivity("
               "Recall): {:.4f}\nPrecision: {:.4f}\nF1-Score: {:.4f}".format
               ((correct + incorrect), correct, correct_percent, incorrect, (100 - correct_percent), accuracy,
@@ -340,7 +340,7 @@ class Model:
 
 
         print('Writing to a file...')
-        preds.to_csv("Predictions{:s}_Validation.csv".format(self.model_name), float_format="%.8f")
+        preds.to_csv("Predictions{:s}_Test.csv".format(self.model_name), float_format="%.8f")
         print('Done\n')
         
     def evaluation(self, data):
@@ -357,7 +357,7 @@ class Model:
                     else:
                         val[...] = 1
 
-        x_input = np.array(data.x_test)
+        x_input = np.array(data.x_val)
         x_input = x_input.reshape((x_input.shape[0], data.n_steps, data.n_features))
         pred_labels_te = self.models[self.model_name].predict(x_input)
         pred_labels_te = pred_labels_te.reshape(pred_labels_te.shape[0], pred_labels_te.shape[1])
@@ -371,8 +371,8 @@ class Model:
                         val[...] = 1
 
         print('* {:s} *'.format(self.model_name).center(55))
-        print('*************** Evaluation on Test Data ****************')
-        print(classification_report(data.y_test, pred_labels_te))
+        print('*************** Evaluation on Validation Data ****************')
+        print(classification_report(data.y_val, pred_labels_te))
         print('--------------------------------------------------------\n')
 
         print('* {:s} *'.format(self.model_name).center(55))
@@ -380,12 +380,12 @@ class Model:
         print(classification_report(data.y_train, pred_labels_tr))
         print('--------------------------------------------------------\n')
 
-        cf_matrix = confusion_matrix(data.y_test, pred_labels_te)
+        cf_matrix = confusion_matrix(data.y_val, pred_labels_te)
         print('* {:s} *'.format(self.model_name).center(55))
         print('******************* Confusion matrix *******************')
         print(cf_matrix)
         print('--------------------------------------------------------\n')
-        print_confusion_matrix(cf_matrix, '{:s} (Test Data)'.format(self.model_name))
+        print_confusion_matrix(cf_matrix, '{:s} (Validation Data)'.format(self.model_name))
 
 
 def print_confusion_matrix(cf_matrix, model_name):
